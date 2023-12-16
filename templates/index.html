@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Speaker Diarization</title>
+      <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            text-align: center;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .output-box {
+            border: 1px solid #ccc;
+            background-color: #000;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            color: #00ff00; /* Green text */
+            font-family: 'Courier New', monospace;
+            overflow: auto;
+            height: 200px; /* Adjust height as needed */
+        }
+        .output-box h2 {
+            margin-top: 0;
+            color: #fff; /* White text */
+        }
+        pre {
+            margin: 0;
+            overflow-wrap: break-word;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js library -->
+    <script>
+        // JavaScript code to render speaker change graph using Chart.js
+        function renderGraph(speakerChanges) {
+            var ctx = document.getElementById('speakerGraph').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: speakerChanges.map((_, i) => `Speaker ${i + 1}`),
+                    datasets: [{
+                        label: 'Speaker Changes Detected',
+                        data: speakerChanges,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Speaker Diarization</h1>
+        <form action="/run_diarization" method="post" enctype="multipart/form-data">
+            <input type="file" name="audio_file" accept=".wav">
+            <br><br>
+            <input type="submit" value="Run Speaker Diarization">
+        </form>
+        <div class="output-box">
+            <h2>Speaker Changes Detected:</h2>
+            <pre>
+                {% for change in speaker_changes %}
+                    {{ change }}<br>
+                {% endfor %}
+            </pre>
+        </div>
+        <div>
+            <h2>Speaker Change Graph:</h2>
+            <canvas id="speakerGraph" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <script>
+        // Call the renderGraph function with the speaker_changes data from Flask
+        var speakerChanges = {{ speaker_changes | tojson }};
+        renderGraph(speakerChanges);
+    </script>
+</body>
+</html>
